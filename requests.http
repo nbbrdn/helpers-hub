@@ -1,0 +1,47 @@
+POST http://127.0.0.1:8000/hub/master/
+Content-Type: application/json
+
+{
+    "update_id": 10000,
+    "message": {
+        "date": 1441645532,
+        "chat": {
+            "last_name": "Test Lastname",
+            "id": 1111111,
+            "first_name": "Test",
+            "username": "testusername"
+        },
+        "message_id": 1365,
+        "from":  {
+            "last_name": "Test Lastname",
+            "id": 1111111,
+            "first_name": "Test",
+            "username": "testusername"
+        },
+        "text": "/start"
+    }
+}
+###
+POST https://dc8c-212-19-9-33.ngrok-free.app/hub/master/
+Content-Type: application/json
+
+{
+    "update_id": 10000,
+    "message": {
+        "date": 1441645532,
+        "chat": {
+            "last_name": "Test Lastname",
+            "id": 1111111,
+            "first_name": "Test",
+            "username": "testusername"
+        },
+        "message_id": 1365,
+        "from":  {
+            "last_name": "Test Lastname",
+            "id": 1111111,
+            "first_name": "Test",
+            "username": "testusername"
+        },
+        "text": "/start"
+    }
+}
