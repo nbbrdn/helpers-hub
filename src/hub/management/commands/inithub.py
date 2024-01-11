@@ -9,40 +9,36 @@ from projects.models import TelegramBot
 
 class Command(BaseCommand):
     def handle(self, *args: Any, **options: Any) -> str | None:
-        if not self.is_masterbot_set():
-            self.create_masterbot()
-        else:
-            print("masterbot already exists")
-
-    def create_masterbot(self):
-        master_bot_telegram_token = config.MASTER_BOT_TOKEN
-        if not master_bot_telegram_token:
+        token = config.MASTER_BOT_TOKEN
+        if not token:
             print("MASTER_BOT_TOKEN is empty!")
             return
 
-        telegram_api_url = config.TELEGRAM_API_URL
-        if not telegram_api_url:
-            print("TELEGRAM_API_URL is empty!")
-            return
+        bot = self.get_masterbot(token)
+        self.register_masterbot_webhooks_url(bot)
 
+    def register_masterbot_webhooks_url(self, bot):
         base_hook_url = config.BASE_HOOK_URL
         if not base_hook_url:
             print("BASE_HOOK_URL is empty!")
 
-        url = f"{telegram_api_url}{master_bot_telegram_token}"
+        api_url = config.TELEGRAM_API_URL
+        if not api_url:
+            print("TELEGRAM_API_URL is empty!")
+            return
+
+        request_url = f"{api_url}{bot.telegram_key}"
         webhook_url = f"{base_hook_url}/hub/master/"
-        request = f"{url}/setWebhook?url={webhook_url}"
+        request = f"{request_url}/setWebhook?url={webhook_url}"
         response = requests.post(request, timeout=5).json()
 
         if response["ok"] and response["result"]:
-            master_bot = TelegramBot()
-            master_bot.bot_type = "fab"
-            master_bot.telegram_key = master_bot_telegram_token
-            master_bot.is_webhook_set = True
-            master_bot.save()
+            bot.is_webhook_set = True
+            bot.save()
+            print("Webhook is registered")
+        else:
+            print("Unable to register bot webhook url")
 
-        print("Master bot is initialized.")
-
-    def is_masterbot_set(self):
-        result = TelegramBot.objects.filter(bot_type="fab")
-        return len(result) > 0
+    def get_masterbot(self, token):
+        bot, _ = TelegramBot.objects.get_or_create(bot_type="fab", telegram_key=token)
+        return bot

@@ -40,9 +40,15 @@ class Message:
 
         text = update["message"]["text"]
 
-        user = User(
-            id=user_id, usename=username, first_name=first_name, last_name=last_name
-        )
+        user, _ = User.objects.get_or_create(telegram_id=user_id)
+        if user.first_name != first_name:
+            user.first_name = first_name
+        if user.last_name != last_name:
+            user.last_name = last_name
+        if user.username != username:
+            user.username = username
+        user.save()
+
         chat = Chat(id=chat_id)
 
         return cls(id=id, date=date, chat=chat, from_user=user, text=text)

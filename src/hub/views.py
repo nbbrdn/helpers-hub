@@ -52,6 +52,7 @@ def process_start_command(message: Message):
     else:
         # TODO: Do something is supervisor is not registered
         text = "Привет! Кажется, я тебя не знаю 🤔\n\nДавай, я помогу тебе зарегистрироваться!"
+        answer(message=message, text=text)
 
 
 def route(message: Message):
