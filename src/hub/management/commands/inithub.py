@@ -1,6 +1,7 @@
+from typing import Any
+
 import requests
 from constance import config
-from typing import Any
 from django.core.management.base import BaseCommand
 
 from projects.models import TelegramBot
@@ -31,9 +32,9 @@ class Command(BaseCommand):
         url = f"{telegram_api_url}{master_bot_telegram_token}"
         webhook_url = f"{base_hook_url}/hub/master/"
         request = f"{url}/setWebhook?url={webhook_url}"
-        response = requests.post(request).json()
+        response = requests.post(request, timeout=5).json()
 
-        if response["ok"] == True and response["result"] == True:
+        if response["ok"] and response["result"]:
             master_bot = TelegramBot()
             master_bot.bot_type = "fab"
             master_bot.telegram_key = master_bot_telegram_token

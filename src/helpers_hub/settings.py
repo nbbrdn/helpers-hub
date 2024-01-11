@@ -1,12 +1,12 @@
 """
 Django settings for helpers_hub project.
 """
-
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-%8h7r=!u0m7$(l8dyq8%c^(fo0^v*g&j468+zlrfz_bv643&7)"
+SECRET_KEY = os.getenv("SECRET_KEY", default="change-me")
 
 DEBUG = True
 
