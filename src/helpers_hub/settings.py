@@ -21,8 +21,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "constance",
     "hub",
-    "users",
     "projects",
+    "telegram",
+    "users",
 ]
 
 MIDDLEWARE = [

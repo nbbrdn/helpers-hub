@@ -1,18 +1,4 @@
-class User:
-    def __init__(
-        self,
-        id: int,
-        usename: str = None,
-        first_name: str = None,
-        last_name: str = None,
-    ):
-        self.id = id
-        self.username = usename
-        self.first_name = first_name
-        self.last_name = last_name
-
-    def __repr__(self):
-        return f"User({self.id}, {self.usename}, {self.first_name}, {self.last_name})"
+from ..models import User
 
 
 class Chat:

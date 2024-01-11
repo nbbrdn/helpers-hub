@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 
 from projects.models import Supervisor
-from telegram.types import Message
+from telegram.api.types import Message
 
 telegram_api_url = config.TELEGRAM_API_URL
 master_bot_telegram_token = config.MASTER_BOT_TOKEN
@@ -52,7 +52,6 @@ def process_start_command(message: Message):
     else:
         # TODO: Do something is supervisor is not registered
         text = "Привет! Кажется, я тебя не знаю 🤔\n\nДавай, я помогу тебе зарегистрироваться!"
-        answer(message=message, text=text)
 
 
 def route(message: Message):
