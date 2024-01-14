@@ -7,6 +7,7 @@ from .models import User
 class UserAdmin(admin.ModelAdmin):
     list_display = (
         "telegram_id",
+        "phone_number",
         "username",
         "first_name",
         "last_name",
@@ -16,6 +17,7 @@ class UserAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         "telegram_id",
+        "phone_number",
         "username",
         "first_name",
         "last_name",

@@ -10,7 +10,14 @@ class Chat:
 
 
 class Message:
-    def __init__(self, id: int, date: int, chat: Chat, from_user: User, text: str):
+    def __init__(
+        self,
+        id: int,
+        date: int,
+        chat: Chat,
+        from_user: User,
+        text: str,
+    ):
         self.id = id
         self.date = date
         self.chat = chat
@@ -38,17 +45,36 @@ class Message:
         else:
             last_name = None
 
-        text = update["message"]["text"]
+        if "text" in update["message"]:
+            text = update["message"]["text"]
+        else:
+            text = None
+
+        if "contact" in update["message"]:
+            if "phone_number" in update["message"]["contact"]:
+                phone_number = update["message"]["contact"]["phone_number"]
+            else:
+                phone_number = None
+        else:
+            phone_number = None
 
         user, _ = User.objects.get_or_create(telegram_id=user_id)
-        if user.first_name != first_name:
+        if first_name and user.first_name != first_name:
             user.first_name = first_name
-        if user.last_name != last_name:
+        if last_name and user.last_name != last_name:
             user.last_name = last_name
-        if user.username != username:
+        if username and user.username != username:
             user.username = username
+        if phone_number and user.phone_number != phone_number:
+            user.phone_number = phone_number
         user.save()
 
         chat = Chat(id=chat_id)
 
-        return cls(id=id, date=date, chat=chat, from_user=user, text=text)
+        return cls(
+            id=id,
+            date=date,
+            chat=chat,
+            from_user=user,
+            text=text,
+        )

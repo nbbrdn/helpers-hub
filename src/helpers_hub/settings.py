@@ -98,3 +98,5 @@ CONSTANCE_CONFIG = {
     "MASTER_BOT_TOKEN": ("", "Telegram Token for the Master Bot"),
     "TELEGRAM_API_URL": ("https://api.telegram.org/bot", "Base Telegram API URL"),
 }
+
+FSM_CONTEXT = {}
