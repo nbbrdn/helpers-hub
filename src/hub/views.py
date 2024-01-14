@@ -7,7 +7,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 
-from projects.models import Supervisor
+from projects.models import Project, Supervisor, TelegramBot
 from telegram.api.types import Message
 
 context = settings.FSM_CONTEXT
@@ -50,7 +50,6 @@ def process_start_command(message: Message, context):
         text = f"Привет, {supervisor.name}! Я тебя знаю!"
         send_message(message.chat.id, text)
     else:
-        # TODO: Do something is supervisor is not registered
         text = (
             "Привет! Кажется, я тебя не знаю 🤔\n\n"
             "Давай, я помогу тебе зарегистрироваться!\n\n"
@@ -83,7 +82,7 @@ def process_waiting_name_state(message: Message, context):
 
     if message.from_user.phone_number:
         context["data"]["phone_number"] = message.from_user.phone_number
-        context["state"] = "waiting_testbot_key"
+        context["state"] = "waiting_testbot_token"
         send_message(
             message.chat.id, "Спасибо!\n\nНапишите API ключ бота для тестирования:"
         )
@@ -114,6 +113,7 @@ def check_token(token):
 def process_waiting_testbot_token(message: Message, context):
     token = message.text.strip()
     result = check_token(token)
+    print(result)
     if result["ok"]:
         context["data"]["testbot_token"] = token
         context["state"] = "waiting_prodbot_token"
@@ -127,14 +127,14 @@ def process_waiting_testbot_token(message: Message, context):
             f"Ваш токен не прошел проверку. Ответ сервера: {error}\n\n"
             "Еще раз напишите API ключ бота для тестирования:"
         )
-        send_message(message.chat.id, text)
+    send_message(message.chat.id, text)
 
 
 def process_waiting_prodbot_token(message: Message, context):
     token = message.text.strip()
     result = check_token(token)
     if result["ok"]:
-        context["data"]["зкщвtbot_token"] = token
+        context["data"]["prodbot_token"] = token
         context["state"] = "initialize_project"
     else:
         error = result["description"]
@@ -144,9 +144,64 @@ def process_waiting_prodbot_token(message: Message, context):
         )
         send_message(message.chat.id, text)
 
+    create_supervisor(message, context)
 
-def process_initialize_project(message: Message, context):
-    pass
+
+def create_supervisor(message: Message, context):
+    supervisor = Supervisor()
+    user = message.from_user
+
+    if user.first_name and user.last_name:
+        supervisor.name = f"{user.first_name} {user.last_name}"
+
+    if user.username:
+        supervisor.telegram_nickname = user.username
+    else:
+        supervisor.telegram_nickname = "<unknown>"
+
+    supervisor.telegram_id = user.telegram_id
+    supervisor.phone = user.phone_number
+
+    supervisor.save()
+    context["data"]["supervisor"] = supervisor
+    send_message(message.chat.id, "Так... Все, я тебя запмнил...")
+
+    create_project(message, context)
+
+
+def create_project(message, context):
+    data = context["data"]
+    supervisor = data["supervisor"]
+    testbot_token = data["testbot_token"]
+    prodbot_token = data["prodbot_token"]
+
+    project = Project()
+    project.owner = supervisor
+    project.dev_telegram_key = testbot_token
+    project.prod_telegram_key = prodbot_token
+    project.save()
+    data["project"] = project
+
+    send_message(
+        message.chat.id, "Уфф... Сформировал для тебя проект...\n\nЕщё чуть-чуть!"
+    )
+
+    testbot = create_bot(testbot_token, context, "dev")
+    if testbot:
+        send_message(message.chat.id, "Тестовый бот создан!")
+
+    prodbot = create_bot(prodbot_token, context, "prod")
+    if prodbot:
+        send_message(message.chat.id, "Боевой бот создан!")
+
+
+def create_bot(token, context, bot_type):
+    bot = TelegramBot()
+    bot.bot_type = bot_type
+    bot.telegram_key = token
+    bot.project = context["data"]["project"]
+    bot.save()
+    return bot
 
 
 states = collections.defaultdict(lambda: process_unknown_state)
@@ -154,7 +209,6 @@ states["waiting_phone_number"] = process_waiting_phone_number_state
 states["waiting_name"] = process_waiting_name_state
 states["waiting_testbot_token"] = process_waiting_testbot_token
 states["waiting_prodbot_token"] = process_waiting_prodbot_token
-states["initialize_project"] = process_initialize_project
 
 
 def route(message: Message):

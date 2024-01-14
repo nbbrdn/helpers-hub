@@ -6,7 +6,7 @@ class Supervisor(models.Model):
     telegram_id = models.BigIntegerField("Telegram ID", null=False, unique=True)
     telegram_nickname = models.CharField("Telegram Username", max_length=50)
     email = models.EmailField("Email", null=True, blank=True)
-    phone = models.TextField("Phone", max_length=50, null=True, blank=True)
+    phone = models.CharField("Phone", max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(
         "Created",
         auto_now_add=True,
@@ -22,7 +22,7 @@ class Supervisor(models.Model):
         verbose_name_plural = "Supervisors"
 
     def __str__(self) -> str:
-        return self.telegram_id
+        return f"Telegram ID: {self.telegram_id}"
 
 
 class Project(models.Model):
@@ -50,7 +50,7 @@ class Project(models.Model):
         verbose_name_plural = "Projects"
 
     def __str__(self) -> str:
-        return self.pk
+        return f"Project ({self.pk})"
 
 
 BOT_TYPE_CHOICES = (
@@ -88,4 +88,4 @@ class TelegramBot(models.Model):
         verbose_name_plural = "Telegram Bots"
 
     def __str__(self) -> str:
-        return f"Bot (id: {self.pk}, name: {self.name}, username: {self.username})"
+        return f"Bot (id: {self.pk})"
