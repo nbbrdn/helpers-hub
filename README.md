@@ -11,3 +11,9 @@
 3. Install the pre-commit hook
     
     `pre-commit install`
+
+### Useful Commands
+Apply migrations:
+```bash
+docker-compose exec web python manage.py migrate --noinput
+```
