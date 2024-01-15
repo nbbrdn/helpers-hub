@@ -88,4 +88,8 @@ class TelegramBot(models.Model):
         verbose_name_plural = "Telegram Bots"
 
     def __str__(self) -> str:
-        return f"Bot (id: {self.pk}, name: {self.name}, username: {self.username}, type: {self.bot_type}, project: {self.project})"
+        return (
+            f"Bot (id: {self.pk}, name: {self.name}, ",
+            f"username: {self.username}, type: {self.bot_type}, ",
+            f"project: {self.project})",
+        )

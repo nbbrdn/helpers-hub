@@ -1,7 +1,8 @@
 from typing import Any
+
+import requests
 from constance import config
 from django.core.management.base import BaseCommand
-import requests
 
 from projects.models import TelegramBot
 
