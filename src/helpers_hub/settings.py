@@ -93,6 +93,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "mediafiles"
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.HubUser"
@@ -105,3 +108,5 @@ CONSTANCE_CONFIG = {
 }
 
 FSM_CONTEXT = {}
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:1337"]
