@@ -23,7 +23,7 @@ services:
       - ./.env.staging.db
   nginx-proxy:
     container_name: nginx-proxy
-    build: ./nginx
+    build: nginx
     restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
@@ -42,7 +42,7 @@ services:
     env_file:
       - ./.env.staging.proxy-companion
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - certs:/etc/nginx/certs
       - html:/usr/share/nginx/html
       - vhost:/etc/nginx/vhost.d
