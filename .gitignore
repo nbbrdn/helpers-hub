@@ -12,3 +12,4 @@ __pycache__/
 .env.staging.db
 .env.staging
 .env.staging.proxy-companion
+.env.prod.proxy-companion
