@@ -18,6 +18,15 @@ url = f"{telegram_api_url}{master_bot_telegram_token}"
 
 
 @csrf_exempt
+def bot(request, project_id, bot_id):
+    if request.method == "POST":
+        update = json.loads(request.body.decode("utf-8"))
+        print(update)
+        return HttpResponse("ok")
+    return HttpResponseBadRequest("Bad Request")
+
+
+@csrf_exempt
 def maser_bot(request):
     if request.method == "POST":
         update = json.loads(request.body.decode("utf-8"))
@@ -44,15 +53,15 @@ def find_supervisor(user_id: int) -> Supervisor | None:
 
 
 def process_start_command(message: Message, context):
-    supervisor = find_supervisor(message.from_user.id)
+    supervisor = find_supervisor(message.from_user.telegram_id)
     if supervisor:
         # TODO: Do something if supervisor is already registered
-        text = f"Привет, {supervisor.name}! Я тебя знаю!"
+        text = f"Привет, {supervisor.name}! Я тебя знаю!\nУ тебя уже есть проект с тестовым и боевым ботами."
         send_message(message.chat.id, text)
     else:
         text = (
-            "Привет! Кажется, я тебя не знаю 🤔\n\n"
-            "Давай, я помогу тебе зарегистрироваться!\n\n"
+            "Привет! Кажется, я тебя не знаю 🤔\n"
+            "Давай, я помогу тебе зарегистрироваться!\n"
             "Для начала представься, как я могу к тебе обращаться:"
         )
         send_message(message.chat.id, text)
@@ -63,9 +72,15 @@ def process_waiting_phone_number_state(message: Message, context):
     if message.from_user.phone_number:
         context["data"]["phone_number"] = message.from_user.phone_number
         context["state"] = "waiting_testbot_token"
+        send_message(
+            message.chat.id, "Спасибо!\n\nНапишите API ключ бота для тестирования:"
+        )
     elif len(message.text) >= 11 and len(message.text) < 20:
         context["data"]["phone_number"] = message.text
         context["state"] = "waiting_testbot_token"
+        send_message(
+            message.chat.id, "Спасибо!\n\nНапишите API ключ бота для тестирования:"
+        )
     else:
         send_message(
             message.chat.id,
@@ -188,11 +203,23 @@ def create_project(message, context):
 
     testbot = create_bot(testbot_token, context, "dev")
     if testbot:
+        update_bot_info(testbot)
         send_message(message.chat.id, "Тестовый бот создан!")
 
     prodbot = create_bot(prodbot_token, context, "prod")
     if prodbot:
+        update_bot_info(prodbot)
         send_message(message.chat.id, "Боевой бот создан!")
+
+
+def update_bot_info(bot):
+    request_url = f"{telegram_api_url}{bot.telegram_key}/getMe"
+    response = requests.get(request_url, timeout=5).json()
+    if response["ok"]:
+        data = response["result"]
+        bot.username = data["username"]
+        bot.name = data["first_name"]
+        bot.save()
 
 
 def create_bot(token, context, bot_type):
@@ -213,14 +240,13 @@ states["waiting_prodbot_token"] = process_waiting_prodbot_token
 
 def route(message: Message):
     context = get_context(message)
-    cuurent_state = context["state"]
-
+    curent_state = context["state"]
+    print(message.text)
+    print(curent_state)
     if message.text and message.text.startswith("/context"):
         send_message(message.chat.id, text=context)
     elif (
-        cuurent_state == "default"
-        and message.text
-        and message.text.startswith("/start")
+        curent_state == "default" and message.text and message.text.startswith("/start")
     ):
         process_start_command(message, context)
     elif message.text and message.text.startswith("/cancel"):
@@ -231,7 +257,7 @@ def route(message: Message):
             text="Понять друг друга и простить...\nДавай начнем все с чистого листа!",
         )
     else:
-        states[cuurent_state](message, context)
+        states[curent_state](message, context)
 
 
 def get_bot_cobtext(token):

@@ -50,7 +50,7 @@ class Project(models.Model):
         verbose_name_plural = "Projects"
 
     def __str__(self) -> str:
-        return f"Project ({self.pk})"
+        return f"Project (id: {self.pk})"
 
 
 BOT_TYPE_CHOICES = (
@@ -88,4 +88,4 @@ class TelegramBot(models.Model):
         verbose_name_plural = "Telegram Bots"
 
     def __str__(self) -> str:
-        return f"Bot (id: {self.pk})"
+        return f"Bot (id: {self.pk}, name: {self.name}, username: {self.username}, type: {self.bot_type}, project: {self.project})"
