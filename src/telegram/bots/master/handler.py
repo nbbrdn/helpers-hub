@@ -64,8 +64,7 @@ def send_message(chat_id, text, reply_markup=None):
     if reply_markup:
         params["reply_markup"] = json.dumps(reply_markup)
     response = requests.post(f"{url}/sendMessage", params=params, timeout=5)
-    print(response)
-    return response.json()
+    print(response.json())
 
 
 def process_waiting_phone_number_state(message: Message, context):
