@@ -25,8 +25,7 @@ def handle_update(update):
 def route(message: Message):
     context = get_context(message)
     curent_state = context["state"]
-    print(message.text)
-    print(curent_state)
+
     if message.text and message.text.startswith("/context"):
         send_message(message.chat.id, text=context)
     elif (
@@ -65,6 +64,7 @@ def send_message(chat_id, text, reply_markup=None):
     if reply_markup:
         params["reply_markup"] = json.dumps(reply_markup)
     response = requests.post(f"{url}/sendMessage", params=params, timeout=5)
+    print(response)
     return response.json()
 
 

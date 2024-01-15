@@ -13,3 +13,4 @@ __pycache__/
 .env.staging
 .env.staging.proxy-companion
 .env.prod.proxy-companion
+staticfiles/
