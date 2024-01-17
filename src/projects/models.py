@@ -25,6 +25,28 @@ class Supervisor(models.Model):
         return f"Telegram ID: {self.telegram_id}"
 
 
+class Router(models.Model):
+    name = models.CharField("Name", max_length=250)
+    handler = models.CharField("handler", max_length=50)
+
+    created_at = models.DateTimeField(
+        "Создан",
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        "Изменён",
+        auto_now=True,
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Router"
+        verbose_name_plural = "Routers"
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Project(models.Model):
     owner = models.ForeignKey(
         Supervisor, on_delete=models.CASCADE, related_name="projects"
@@ -34,6 +56,9 @@ class Project(models.Model):
     )
     prod_telegram_key = models.CharField(
         "Telegram Key (Prod)", max_length=250, null=False, blank=False
+    )
+    router = models.ForeignKey(
+        Router, on_delete=models.PROTECT, related_name="projects", null=True, blank=True
     )
     created_at = models.DateTimeField(
         "Создан",
