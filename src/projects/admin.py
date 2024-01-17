@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Project, Router, Supervisor, TelegramBot
+from .models import Project, Router, Supervisor, TelegramBot, TelegramBotConfig
 
 
 @admin.register(Supervisor)
@@ -13,10 +13,16 @@ class ProjectAdmin(admin.ModelAdmin):
     pass
 
 
+class TelegramBotConfigInline(admin.StackedInline):
+    model = TelegramBotConfig
+    extra = 0
+
+
 @admin.register(TelegramBot)
 class TelegramBotAdmin(admin.ModelAdmin):
     list_display = ("name", "username", "project", "is_webhook_set")
     readonly_fields = ("is_webhook_set",)
+    inlines = (TelegramBotConfigInline,)
 
 
 @admin.register(Router)

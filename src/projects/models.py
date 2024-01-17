@@ -27,7 +27,7 @@ class Supervisor(models.Model):
 
 class Router(models.Model):
     name = models.CharField("Name", max_length=250)
-    handler = models.CharField("handler", max_length=50)
+    handler = models.CharField("handler", max_length=50, unique=True)
 
     created_at = models.DateTimeField(
         "Создан",
@@ -114,3 +114,16 @@ class TelegramBot(models.Model):
 
     def __str__(self) -> str:
         return f"Bot (id: {self.pk}, name: {self.name if self.name else ''}, "
+
+
+class TelegramBotConfig(models.Model):
+    bot = models.ForeignKey(
+        TelegramBot, on_delete=models.CASCADE, related_name="configs"
+    )
+    name = models.CharField("Name", max_length=50)
+    value = models.CharField("Value", max_length=50)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Config"
+        verbose_name_plural = "Congigs"

@@ -5,10 +5,10 @@ import requests
 from constance import config
 from django.conf import settings
 
-from projects.models import Project, Supervisor, TelegramBot
+from projects.models import Project, Router, Supervisor, TelegramBot
 from telegram.api.types import Message
 
-context = settings.FSM_CONTEXT
+global_context = settings.FSM_CONTEXT
 
 
 telegram_api_url = config.TELEGRAM_API_URL
@@ -26,11 +26,7 @@ def route(message: Message):
     context = get_context(message)
     curent_state = context["state"]
 
-    if message.text and message.text.startswith("/context"):
-        send_message(message.chat.id, text=context)
-    elif (
-        curent_state == "default" and message.text and message.text.startswith("/start")
-    ):
+    if curent_state == "default" and message.text and message.text.startswith("/start"):
         process_start_command(message, context)
     elif message.text and message.text.startswith("/cancel"):
         context["state"] = "default"
@@ -63,9 +59,7 @@ def send_message(chat_id, text, reply_markup=None):
     params = {"chat_id": chat_id, "text": text}
     if reply_markup:
         params["reply_markup"] = json.dumps(reply_markup)
-    response = requests.post(f"{url}/sendMessage", params=params, timeout=5)
-    print(f"request: {url}/sendMessage")
-    print(response.json())
+    requests.post(f"{url}/sendMessage", params=params, timeout=5)
 
 
 def process_waiting_phone_number_state(message: Message, context):
@@ -140,7 +134,6 @@ def process_unknown_state(message, context):
 def process_waiting_testbot_token(message: Message, context):
     token = message.text.strip()
     result = check_token(token)
-    print(result)
     if result["ok"]:
         context["data"]["testbot_token"] = token
         context["state"] = "waiting_prodbot_token"
@@ -194,10 +187,13 @@ def create_project(message, context):
     testbot_token = data["testbot_token"]
     prodbot_token = data["prodbot_token"]
 
+    router = Router.objects.get(handler="echo")
+
     project = Project()
     project.owner = supervisor
     project.dev_telegram_key = testbot_token
     project.prod_telegram_key = prodbot_token
+    project.router = router
     project.save()
     data["project"] = project
 
@@ -278,11 +274,11 @@ def create_bot(token, context, bot_type):
 
 
 def get_bot_context(token):
-    if token in context:
-        return context[token]
+    if token in global_context:
+        return global_context[token]
 
     bot_context = {}
-    context[token] = bot_context
+    global_context[token] = bot_context
     return bot_context
 
 

@@ -105,9 +105,12 @@ CONSTANCE_CONFIG = {
     "BASE_HOOK_URL": ("http://localhost", "The base url for Telegram webhooks"),
     "MASTER_BOT_TOKEN": ("", "Telegram Token for the Master Bot"),
     "TELEGRAM_API_URL": ("https://api.telegram.org/bot", "Base Telegram API URL"),
+    "OPEN_AI_API_KEY": ("", "OpenAI Assistants API Key"),
 }
 
 FSM_CONTEXT = {}
 
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "http://localhost").split(
+    " "
+)
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
