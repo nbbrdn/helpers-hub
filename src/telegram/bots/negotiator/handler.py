@@ -46,16 +46,17 @@ def process_start_command(message, context):
     }
     context[message.chat.id]["state"] = "waiting_case_choice"
     response = send_message(message.chat.id, text, context, reply_markup=keyboard)
-    print(response)
+    print(f"DBG: {response}")
 
 
 def process_unknown_state(message: Message, context):
-    response = send_message(message.chat.id, "Моя твоя не понимай 🤔", context)
-    print(response)
+    send_message(message.chat.id, "Моя твоя не понимай 🤔", context)
 
 
 def process_waiting_case_choice(message: Message, context):
-    print("process_waiting_case_choice")
+    print(context)
+    print(message.text)
+    print("process_waiting_case_choice.")
 
 
 states = collections.defaultdict(lambda: process_unknown_state)
